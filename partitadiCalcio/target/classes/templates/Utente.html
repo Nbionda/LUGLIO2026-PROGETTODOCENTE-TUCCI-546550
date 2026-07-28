@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" 
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Profilo Utente - Partita di Calcio</title>
+    <!-- Collegamento al foglio di stile centralizzato nella cartella static -->
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+    <!-- NAVBAR (Punto 5 - Gestione Visiva dei Ruoli) -->
+    <nav>
+        <div class="logo">PartitaDiCalcio</div>
+        <div class="menu">
+            <a th:href="@{/}">Home Tornei</a>
+            
+            <!-- Mostra il link di amministrazione SOLO se l'utente ha ruolo ADMIN -->
+            <a sec:authorize="hasRole('ADMIN')" th:href="@{/admin/pannello}" class="btn-admin">Pannello Admin</a>
+            
+            <!-- Pulsante di Logout gestito nativamente da Spring Security -->
+            <a th:href="@{/logout}" style="background-color: #7f8c8d; padding: 8px 15px; border-radius: 4px;">Logout</a>
+        </div>
+    </nav>
+
+    <!-- CONTENITORE PRINCIPALE -->
+    <div class="container">
+        <h2>Il Tuo Profilo</h2>
+        
+        <!-- CARD DETTAGLIO UTENTE -->
+        <div class="card-torneo" style="max-width: 600px; margin: 0 auto;">
+            <!-- Nome e Cognome recuperati dinamicamente dall'oggetto model 'utente' -->
+            <h3 th:text="${utente.nome} + ' ' + ${utente.cognome}">Nome Cognome</h3>
+            
+            <p class="desc">
+                <strong>Username / Account:</strong> <span th:text="${utente.username}">username</span>
+            </p>
+            
+            <!-- Badge dinamico per mostrare il ruolo sul database -->
+            <div style="margin-top: 15px;">
+                <span class="user-badge" style="background-color: #27ae60;" sec:authorize="hasRole('ADMIN')">Account Amministratore (ADMIN)</span>
+                <span class="user-badge" style="background-color: #2980b9;" sec:authorize="hasRole('USER')">Account Standard (USER)</span>
+            </div>
+        </div>
+
+        <hr class="separator">
+
+        <!-- MESSAGGIO DI BENVENUTO CONTESTUALE -->
+        <div class="alert" style="text-align: center; background-color: #e8f4fd; color: #2c3e50; border-color: #d0e7f9;">
+            <p sec:authorize="hasRole('ADMIN')">
+                👋 Benvenuto nel sistema di gestione. Hai i permessi per modificare i risultati delle partite tramite l'API REST.
+            </p>
+            <p sec:authorize="hasRole('USER')">
+                👋 Benvenuto tifoso! Puoi visualizzare i dettagli dei tornei e seguire le partite in tempo reale grazie al widget React.
+            </p>
+        </div>
+    </div>
+
+</body>
+</html>

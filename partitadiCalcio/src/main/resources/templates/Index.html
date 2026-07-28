@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org" 
+      xmlns:sec="https://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestione Tornei di Calcio Amatoriale</title>
+    <!-- Collegamento al file CSS statico del progetto -->
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    
+    <!-- Librerie Core di React caricate tramite CDN (Requisito Punto 9) -->
+    <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+</head>
+<body>
+
+    <!-- NAV BAR: Gestita dinamicamente con Spring Security (Punto 5) -->
+    <nav>
+        <span class="logo">🏆 Siw Football</span>
+        <div class="menu">
+            <a th:href="@{/}">Home</a>
+            
+            <!-- Visibile solo agli utenti NON loggati (Anonimi) -->
+            <a sec:authorize="isAnonymous()" th:href="@{/login}">Accedi</a>
+            
+            <!-- Visibile a qualsiasi utente autenticato (USER o ADMIN) -->
+            <a sec:authorize="isAuthenticated()" th:href="@{/logout}">Disconnetti</a>
+            
+            <!-- Visibile ESCLUSIVAMENTE all'Amministratore (Punto 4.3) -->
+            <a sec:authorize="hasRole('ADMIN')" th:href="@{/admin/dashboard}" class="btn-admin">Pannello Admin</a>
+        </div>
+        
+        <!-- Mostra il nome dell'utente connesso -->
+        <div sec:authorize="isAuthenticated()" class="user-badge">
+            Connesso come: <span sec:authentication="name">Utente</span>
+        </div>
+    </nav>
+
+    <main class="container">
+        
+        <!-- SEZIONE THYMELEAF: Rendering dell'elenco dei tornei (Punto 4.1) -->
+        <section class="tornei-section">
+            <h2>Tornei Attivi</h2>
+            
+            <!-- Messaggio se la lista inviata dal Controller è vuota -->
+            <div th:if="${#lists.isEmpty(tornei)}" class="alert">
+                <p>Nessun torneo disponibile al momento.</p>
+            </div>
+            
+            <!-- Griglia dei tornei se presenti nel Database -->
+            <div class="grid-tornei" th:unless="${#lists.isEmpty(tornei)}">
+                <div class="card-torneo" th:each="torneo : ${tornei}">
+                    <h3 th:text="${torneo.nome}">Nome Torneo</h3>
+                    <p>Anno: <span th:text="${torneo.anno}">2026</span></p>
+                    <p class="desc" th:text="${torneo.descrizione}">Descrizione...</p>
+                    <a th:href="@{/torneo/{id}(id=${torneo.id})}" class="btn-dettaglio">Vedi Calendario</a>
+                </div>
+            </div>
+        </section>
+
+        <hr class="separator"/>
+
+        <!-- SEZIONE REACT: Punto di innesto per la componente dinamica (Punto 9) -->
+        <section class="react-section">
+            <h2>Live Match e Risultati (Widget React)</h2>
+            <!-- React cercherà questo ID specifico per montare la sua interfaccia -->
+            <div id="react-live-matches-root">
+                <p class="loading-text">Inizializzazione del componente React...</p>
+            </div>
+        </section>
+        
+    </main>
+
+    <!-- Script JavaScript che contiene il componente React e fa le chiamate REST al tuo controller -->
+    <script th:src="@{/js/live-matches.js}"></script>
+</body>
+</html>
